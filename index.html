@@ -23,11 +23,20 @@
 
   <div class="lessons">
     <article v-for="lesson in filteredLessons" :key="lesson.id" class="lesson">
-      ...
+      <img :src="lesson.image" :alt="lesson.alt">
+      <div class="lesson-body">
+        <h2>{{ lesson.subject }}</h2>
+        <p class="location">{{ lesson.location }}</p>
+        <p class="price">Rs {{ lesson.price }}</p>
+        <p v-if="lesson.spaces === 0" class="sold-out">Sold out</p>
+        <p v-else class="spaces">{{ lesson.spaces }} spaces left</p>
+        <button @click="addToCart(lesson)" :disabled="lesson.spaces === 0">
+          Add to cart
+        </button>
+      </div>
     </article>
   </div>
 </main>
-
   </div>
 </body>
 </html>

@@ -15,20 +15,18 @@ const app = Vue.createApp({
         { id: 6, subject: "Science", location: "Dubai", price: 110,
           spaces: 5, image: "images/science.png", alt: "Microscope" }
       ],
-            cart: [],
+      cart: [],
       showCart: false,
       search: ""
     };
   },
-    };
-  },
-    methods: {
+  methods: {
     addToCart(lesson) {
       this.cart.push(lesson.id);
       lesson.spaces--;
     }
   },
-  computed: {
+   computed: {
     filteredLessons() {
       const term = this.search.toLowerCase();
       return this.lessons.filter(l =>
