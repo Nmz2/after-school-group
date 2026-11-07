@@ -3,25 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>After School Club</title>
+  <title>After School Group</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/vue@3" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
-<div id="app">
-  <h1>After School Group</h1>
-  <p>Items in cart: {{ cart.length }}</p>
+  <div id="app">
 
-  <div v-for="lesson in lessons" :key="lesson.id" class="lesson">
-    <img :src="lesson.image" :alt="lesson.alt">
-    <h2>{{ lesson.subject }}</h2>
-    <p>{{ lesson.location }}</p>
-    <p>Price: {{ lesson.price }}</p>
-    <p>Spaces: {{ lesson.spaces }}</p>
-    <button @click="addToCart(lesson)">Add to cart</button>
+    <header class="site-header">
+      <h1>After School Group</h1>
+      <button class="cart-btn" @click="showCart = !showCart">
+        Cart ({{ cart.length }})
+      </button>
+    </header>
+
+    <main>
+  <input v-model="search" class="search-box" placeholder="Search subject or location">
+
+  <div class="lessons">
+    <article v-for="lesson in filteredLessons" :key="lesson.id" class="lesson">
+      ...
+    </article>
   </div>
-</div>
-</div>
+</main>
+
+  </div>
 </body>
 </html>
