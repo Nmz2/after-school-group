@@ -12,10 +12,12 @@ const app = Vue.createApp({
           spaces: 5, image: "images/music.png", alt: "Guitar and notes" },
         { id: 5, subject: "English", location: "Mauritius", price: 70,
           spaces: 5, image: "images/english.png", alt: "Stack of books" },
-        { id: 6, subject: "Science", location: "Dubai", price: 110,
-          spaces: 5, image: "images/science.png", alt: "Microscope" }
+                { id: 6, subject: "Physics", location: "Dubai", price: 110,
+          spaces: 5, image: "images/physics.png", alt: "Planet orbit diagram" },
+               { id: 7, subject: "Biology", location: "Mauritius", price: 110,
+          spaces: 5, image: "images/biology.png", alt: "Cell under a microscope" }
       ],
-            cart: [],
+      cart: [],
       showCart: false,
       search: "",
       steps: [
@@ -41,13 +43,19 @@ const app = Vue.createApp({
       lesson.spaces--;
     }
   },
-   computed: {
+     computed: {
     filteredLessons() {
       const term = this.search.toLowerCase();
       return this.lessons.filter(l =>
         l.subject.toLowerCase().includes(term) ||
         l.location.toLowerCase().includes(term)
       );
+    },
+    foundationReasons() {
+      return this.reasons.filter(r => r.group === "foundation");
+    },
+    creativeReasons() {
+      return this.reasons.filter(r => r.group === "creative");
     }
   }
 });
