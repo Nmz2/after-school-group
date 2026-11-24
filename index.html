@@ -121,8 +121,8 @@
           <p v-if="filteredLessons.length === 0" class="empty">No lessons found. Try another word.</p>
 
           <div class="lessons">
-            <article v-for="lesson in sortedLessons" :key="lesson.id" class="lesson">
-              <img :src="lesson.image" :alt="lesson.alt" loading="lazy" width="400" height="160">
+            <article v-for="lesson in sortedLessons" :key="lesson._id" class="lesson">
+              <img :src="apiUrl + '/images/' + lesson.image" :alt="lesson.alt" loading="lazy" width="400" height="160">
               <div class="lesson-body">
                 <h3>{{ lesson.subject }}</h3>
                 <p class="description">{{ lesson.description }}</p>
@@ -169,7 +169,7 @@
               <span>Rs {{ item.price }}</span>
               <button type="button" class="remove-btn"
                       :aria-label="'Remove ' + item.subject + ' from cart'"
-                      @click="removeFromCart(item.id)">Remove</button>
+                      @click="removeFromCart(item._id)">Remove</button>
             </li>
           </ul>
           <p class="total">Total: Rs {{ cartTotal }}</p>

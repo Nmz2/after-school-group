@@ -2,18 +2,8 @@
 const app = Vue.createApp({
   data() {
     return {
-      lessons: [
-        { id: 1, subject: "Math", location: "London", price: 100, spaces: 5, tutor: "Mr Patel", description: "Numbers, algebra and problem solving.", image: "images/maths.png", alt: "Maths symbols" },
-        { id: 2, subject: "Art", location: "London", price: 80, spaces: 5, tutor: "Ms Rossi", description: "Draw, paint and share your ideas.", image: "images/art.png", alt: "Paint palette" },
-        { id: 3, subject: "Computer Science", location: "Mauritius", price: 120, spaces: 5, tutor: "Mr Dubois", description: "Learn to solve problems with code.", image: "images/cs.png", alt: "Laptop with code" },
-        { id: 4, subject: "Music", location: "Dubai", price: 90, spaces: 5, tutor: "Ms Haddad", description: "Train your ear. Play and read music.", image: "images/music.png", alt: "Guitar and notes" },
-        { id: 5, subject: "English", location: "Mauritius", price: 70, spaces: 5, tutor: "Ms Laurent", description: "Read well. Write clearly. Speak with confidence.", image: "images/english.png", alt: "Stack of books" },
-        { id: 6, subject: "Physics", location: "Dubai", price: 110, spaces: 5, tutor: "Dr Khan", description: "See how forces, light and energy work.", image: "images/physics.png", alt: "Planet orbit diagram" },
-        { id: 7, subject: "Biology", location: "Mauritius", price: 110, spaces: 5, tutor: "Ms Naidoo", description: "Learn about cells, the body and living things.", image: "images/biology.png", alt: "Cell under a microscope" },
-        { id: 8, subject: "French", location: "Mauritius", price: 85, spaces: 5, tutor: "Mme Lefevre", description: "Speak, read and write in French.", image: "images/french.svg", alt: "French flag and a speech bubble saying Bonjour" },
-        { id: 9, subject: "Cybersecurity", location: "London", price: 130, spaces: 5, tutor: "Mr Osei", description: "Learn how to keep data and devices safe.", image: "images/cybersecurity.svg", alt: "Shield with a padlock" },
-        { id: 10, subject: "Chess", location: "Dubai", price: 60, spaces: 5, tutor: "Mr Petrov", description: "Plan ahead. Think before you move.", image: "images/chess.svg", alt: "Chess pawn and rook on a board" }
-      ],
+      apiUrl: "http://localhost:3000",   // change to the render.com address later
+      lessons: [],                        // filled by fetch when the page loads
       cart: [],
       showCart: false,
       search: "",
@@ -55,10 +45,22 @@ const app = Vue.createApp({
     };
   },
 
+  /* When the page loads, get the lessons from the server. */
+  created() {
+    fetch(this.apiUrl + "/lessons")
+      .then(response => response.json())
+      .then(data => {
+        this.lessons = data;
+      })
+      .catch(error => {
+        console.log("Could not load lessons:", error);
+      });
+  },
+
   /* Zone 2: The METHODS are here. User can make an action. */
   methods: {
     addToCart(lesson) {
-      this.cart.push(lesson.id);
+      this.cart.push(lesson._id);
       lesson.spaces--;
     },
     toggleStep(index) {
@@ -68,7 +70,7 @@ const app = Vue.createApp({
       const position = this.cart.indexOf(id);
       if (position === -1) return;
       this.cart.splice(position, 1);
-      const lesson = this.lessons.find(l => l.id === id);
+      const lesson = this.lessons.find(l => l._id === id);
       lesson.spaces++;
     },
     submitOrder() {
@@ -113,7 +115,7 @@ const app = Vue.createApp({
       return this.reasons.filter(r => r.group === "creative");
     },
     cartItems() {
-      return this.cart.map(id => this.lessons.find(l => l.id === id));
+      return this.cart.map(id => this.lessons.find(l => l._id === id));
     },
     cartTotal() {
       return this.cartItems.reduce((sum, item) => sum + item.price, 0);
