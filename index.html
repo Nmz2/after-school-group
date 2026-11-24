@@ -3,105 +3,236 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="After school lessons in Math, English, French, Physics, Biology, Computer Science, Cybersecurity, Art, Music and Chess.">
   <title>After School Group</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/vue@3" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
-  <div id="app">
+  <a href="#content" class="skip-link">Skip to content</a>
 
-    <header class="site-header">
-      <h1>After School Group</h1>
-      <nav class="nav">
-        <a href="#how">How it works</a>
-        <a href="#why">Why these subjects</a>
-        <a href="#lessons">Lessons</a>
-        <a href="#places">Where</a>
+  <div id="app" v-cloak>
+
+    <header class="site-header" id="top">
+      <a href="#top" class="brand" @click="showCart = false">
+        <img src="images/logo.png" alt="After School Group Logo" class="brand-logo">
+        <span class="brand-text">After School Group</span>
+      </a>
+
+      <nav class="nav" aria-label="Main">
+        <a href="#how" @click="showCart = false">How it works</a>
+        <a href="#why" @click="showCart = false">Why these subjects</a>
+        <a href="#lessons" @click="showCart = false">Lessons</a>
+        <a href="#places" @click="showCart = false">Where</a>
       </nav>
-      <button class="cart-btn" @click="showCart = !showCart">
+
+      <button type="button" class="cart-btn"
+              :aria-label="'Cart, ' + cart.length + ' items'"
+              :disabled="cart.length === 0"
+              @click="showCart = !showCart">
         Cart ({{ cart.length }})
       </button>
     </header>
 
-    <section class="banner">
-      <div class="banner-text">
-        <h2>Learn how things work. Learn how to create.</h2>
-        <p>We teach Math, English, Physics, Biology, Computer Science, Art and Music. Classes are small. Lessons are after school.</p>
-        <a href="#lessons" class="banner-btn">See lessons</a>
-        <a href="#how" class="banner-btn banner-btn-light">How it works</a>
-      </div>
-    </section>
+    <main id="content">
 
-    <section class="features">
-      <div v-for="(f, index) in features" :key="f.title"
-           class="feature" :class="{ reverse: index % 2 === 1 }">
-        <img :src="f.image" :alt="f.alt">
-        <div>
-          <h3>{{ f.title }}</h3>
-          <p>{{ f.text }}</p>
-        </div>
-      </div>
-    </section>
+      <!-- SHOP PAGE -->
+      <div v-show="!showCart">
 
-    <section id="how" class="info">
-      <h2>How it works</h2>
-      <ol>
-        <li v-for="(step, index) in steps" :key="index">{{ step }}</li>
-      </ol>
-    </section>
-
-    <section id="why" class="info">
-      <h2>Why these subjects</h2>
-      <h3 class="group-title">Foundations</h3>
-      <div class="reasons">
-        <div v-for="r in foundationReasons" :key="r.subject" class="reason">
-          <h3>{{ r.subject }}</h3>
-          <p>{{ r.text }}</p>
-        </div>
-      </div>
-      <h3 class="group-title">Creativity</h3>
-      <div class="reasons">
-        <div v-for="r in creativeReasons" :key="r.subject" class="reason">
-          <h3>{{ r.subject }}</h3>
-          <p>{{ r.text }}</p>
-        </div>
-      </div>
-    </section>
-
-    <main id="lessons">
-      <h2 class="section-title">Our lessons</h2>
-      <input v-model="search" class="search-box" placeholder="Search subject or location">
-
-      <div class="lessons">
-        <article v-for="lesson in filteredLessons" :key="lesson.id" class="lesson">
-          <img :src="lesson.image" :alt="lesson.alt">
-          <div class="lesson-body">
-            <h2>{{ lesson.subject }}</h2>
-            <p class="location">{{ lesson.location }}</p>
-            <p class="price">Rs {{ lesson.price }}</p>
-            <p v-if="lesson.spaces === 0" class="sold-out">Sold out</p>
-            <p v-else class="spaces">{{ lesson.spaces }} spaces left</p>
-            <button @click="addToCart(lesson)" :disabled="lesson.spaces === 0">
-              Add to cart
-            </button>
+        <section class="banner">
+          <div class="banner-text">
+            <h1>Learn how things work. Learn how to create.</h1>
+            <p>We teach Math, English, French, Physics, Biology, Computer Science, Cybersecurity, Art, Music and Chess. Classes are small. Lessons are after school.</p>
+            <a href="#lessons" class="banner-btn">See lessons</a>
+            <a href="#how" class="banner-btn banner-btn-light">How it works</a>
           </div>
-        </article>
+        </section>
+
+        <section class="features">
+          <h2 class="features-title">How we teach</h2>
+          <div class="feature-grid">
+            <article v-for="f in features" :key="f.number" class="feature-card">
+              <span class="feature-number">{{ f.number }}</span>
+              <h3>{{ f.title }}</h3>
+              <p>{{ f.text }}</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="how" class="info">
+          <h2>How it works</h2>
+          <div class="accordion">
+            <div v-for="(step, index) in steps" :key="step.title" class="acc-item">
+              <button type="button" class="acc-head"
+                      :aria-expanded="openStep === index"
+                      :aria-controls="'panel-' + index"
+                      @click="toggleStep(index)">
+                <span>{{ index + 1 }}. {{ step.title }}</span>
+                <span class="arrow" :class="{ open: openStep === index }" aria-hidden="true">▾</span>
+              </button>
+              <transition name="fade">
+                <p v-if="openStep === index" :id="'panel-' + index" class="acc-body">{{ step.detail }}</p>
+              </transition>
+            </div>
+          </div>
+        </section>
+
+        <section id="why" class="info">
+          <h2>Why these subjects</h2>
+          <h3 class="group-title">Foundations</h3>
+          <div class="reasons">
+            <div v-for="r in foundationReasons" :key="r.subject" class="reason">
+              <h4>{{ r.subject }}</h4>
+              <p>{{ r.text }}</p>
+            </div>
+          </div>
+          <h3 class="group-title">Creativity</h3>
+          <div class="reasons">
+            <div v-for="r in creativeReasons" :key="r.subject" class="reason">
+              <h4>{{ r.subject }}</h4>
+              <p>{{ r.text }}</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="lessons" class="shop">
+          <h2 class="section-title">Our lessons</h2>
+
+          <label for="search" class="visually-hidden">Search lessons</label>
+          <input id="search" type="search" v-model="search" class="search-box"
+                 placeholder="Search subject or location">
+
+          <label for="sort-by">Sort by</label>
+          <select id="sort-by" v-model="sortBy">
+            <option value="subject">Subject</option>
+            <option value="location">Location</option>
+            <option value="price">Price</option>
+            <option value="spaces">Spaces</option>
+          </select>
+
+          <label for="sort-order">Order</label>
+          <select id="sort-order" v-model="sortOrder">
+           <option value="asc">Ascending</option>
+           <option value="desc">Descending</option>
+          </select>
+
+          <p class="result-count" aria-live="polite">{{ filteredLessons.length }} lessons shown</p>
+          <p v-if="filteredLessons.length === 0" class="empty">No lessons found. Try another word.</p>
+
+          <div class="lessons">
+            <article v-for="lesson in sortedLessons" :key="lesson.id" class="lesson">
+              <img :src="lesson.image" :alt="lesson.alt" loading="lazy" width="400" height="160">
+              <div class="lesson-body">
+                <h3>{{ lesson.subject }}</h3>
+                <p class="description">{{ lesson.description }}</p>
+                <p class="tutor">Tutor: {{ lesson.tutor }}</p>
+                <p class="location">{{ lesson.location }}</p>
+                <p class="price">Rs {{ lesson.price }}</p>
+                <p v-if="lesson.spaces === 0" class="sold-out">Sold out</p>
+                <p v-else class="spaces">{{ lesson.spaces }} spaces left</p>
+                <button type="button"
+                        :aria-label="'Add ' + lesson.subject + ' in ' + lesson.location + ' to cart'"
+                        @click="addToCart(lesson)"
+                        :disabled="lesson.spaces === 0">
+                  Add to cart
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="places" class="info">
+          <h2>Where we teach</h2>
+          <div class="reasons">
+            <div v-for="p in places" :key="p.name" class="reason">
+              <h3>{{ p.name }}</h3>
+              <p>{{ p.text }}</p>
+            </div>
+          </div>
+        </section>
+
       </div>
+
+      <!-- CART PAGE -->
+      <section v-show="showCart" class="cart-page">
+        <button type="button" class="back-btn" @click="showCart = false">← Back to lessons</button>
+        <h2>Your cart</h2>
+
+        <p v-if="orderMessage" class="success" role="status">{{ orderMessage }}</p>
+        <p v-else-if="cart.length === 0">Your cart is empty.</p>
+
+        <div v-if="cart.length > 0">
+          <ul class="cart-list">
+            <li v-for="(item, index) in cartItems" :key="index" class="cart-row">
+              <span>{{ item.subject }} - {{ item.location }}</span>
+              <span>Rs {{ item.price }}</span>
+              <button type="button" class="remove-btn"
+                      :aria-label="'Remove ' + item.subject + ' from cart'"
+                      @click="removeFromCart(item.id)">Remove</button>
+            </li>
+          </ul>
+          <p class="total">Total: Rs {{ cartTotal }}</p>
+
+          <form class="checkout" @submit.prevent="submitOrder">
+            <h3>Your details</h3>
+
+            <label for="name">Name</label>
+            <input id="name" v-model="name" type="text" autocomplete="name"
+                   placeholder="Your name" required
+                   :aria-invalid="name !== '' && !validName"
+                   aria-describedby="name-error">
+            <p v-if="name && !validName" id="name-error" class="error">Use letters only.</p>
+
+            <label for="phone">Phone number</label>
+            <input id="phone" v-model="phone" type="tel" inputmode="numeric" autocomplete="tel"
+                   placeholder="Numbers only" required
+                   :aria-invalid="phone !== '' && !validPhone"
+                   aria-describedby="phone-error">
+            <p v-if="phone && !validPhone" id="phone-error" class="error">Use numbers only. Enter at least 7.</p>
+
+            <button type="submit" :disabled="!canCheckout">Checkout</button>
+          </form>
+        </div>
+      </section>
+
     </main>
 
-    <section id="places" class="info">
-      <h2>Where we teach</h2>
-      <div class="reasons">
-        <div v-for="p in places" :key="p.name" class="reason">
-          <h3>{{ p.name }}</h3>
-          <p>{{ p.text }}</p>
-        </div>
-      </div>
-    </section>
-
     <footer class="site-footer">
-      <p>After School Group. A fictitious company for a university project.</p>
+      <div class="footer-grid">
+
+        <div>
+          <h3>After School Group</h3>
+          <p>Small classes after school. Learn how things work. Learn how to create.</p>
+        </div>
+
+        <div>
+          <h3>Quick links</h3>
+          <ul class="footer-list">
+            <li><a href="#how" @click="showCart = false">How it works</a></li>
+            <li><a href="#why" @click="showCart = false">Why these subjects</a></li>
+            <li><a href="#lessons" @click="showCart = false">Lessons</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Where we teach</h3>
+          <ul class="footer-list">
+            <li v-for="p in places" :key="p.name">{{ p.name }}</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Contact</h3>
+          <ul class="footer-list">
+            <li><a href="mailto:hello@example.com">hello@example.com</a></li>
+            <li>Monday to Friday, after school</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <p class="footer-bottom">&copy; {{ year }} After School Group. All rights reserved.</p>
     </footer>
 
   </div>
