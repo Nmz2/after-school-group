@@ -7,6 +7,7 @@ const app = Vue.createApp({
       cart: [],
       showCart: false,
       search: "",
+      searchIds: null,     // ids of lessons the server says match; null = show all
       sortBy: "subject",   // which field: subject, location, price or spaces
       sortOrder: "asc",    // "asc" or "desc"
       steps: [
@@ -125,15 +126,27 @@ const app = Vue.createApp({
         });
     }
   },
-
-  /* Zone 3: The COMPUTED values are here. These are made from data values. */
- computed: {
+  /* Zone 3: WATCH runs code when a data value changes. */
+  watch: {
+    search(newTerm) {
+      if (newTerm.trim() === "") {
+        this.searchIds = null;          // empty box: show all lessons
+        return;
+      }
+      fetch(this.apiUrl + "/search?q=" + encodeURIComponent(newTerm))
+        .then(response => response.json())
+        .then(data => {
+          if (newTerm !== this.search) return;   // user kept typing: ignore old answer
+          this.searchIds = data.map(l => l._id);
+        })
+        .catch(error => console.log("Search failed:", error));
+    }
+  },
+  /* Zone 4: The COMPUTED values are here. These are made from data values. */
+  computed: {
     filteredLessons() {
-      const term = this.search.toLowerCase();
-      return this.lessons.filter(l =>
-        l.subject.toLowerCase().includes(term) ||
-        l.location.toLowerCase().includes(term)
-      );
+      if (this.searchIds === null) return this.lessons;
+      return this.lessons.filter(l => this.searchIds.includes(l._id));
     },
 
     sortedLessons() {
