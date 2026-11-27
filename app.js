@@ -2,7 +2,7 @@
 const app = Vue.createApp({
   data() {
     return {
-      apiUrl: "http://localhost:3000",   // change to the render.com address later
+      apiUrl: "https://m01087852-after-school.onrender.com",
       lessons: [],                        // filled by fetch when the page loads
       cart: [],
       showCart: false,
@@ -62,6 +62,7 @@ const app = Vue.createApp({
     addToCart(lesson) {
       this.cart.push(lesson._id);
       lesson.spaces--;
+      this.orderMessage = "";   // hide the old message when a new order starts
     },
     toggleStep(index) {
       this.openStep = this.openStep === index ? null : index;
@@ -75,10 +76,53 @@ const app = Vue.createApp({
     },
     submitOrder() {
       if (!this.canCheckout) return;
-      this.orderMessage = `Thank you, ${this.name}. Your places are booked.`;
-      this.cart = [];
-      this.name = "";
-      this.phone = "";
+
+      // Count how many spaces of each lesson are in the cart.
+      // cart ["a", "a", "b"] becomes [ {lessonID: "a", spaces: 2}, {lessonID: "b", spaces: 1} ]
+      const orderLessons = [];
+      this.cart.forEach(id => {
+        const found = orderLessons.find(item => item.lessonID === id);
+        if (found) {
+          found.spaces++;
+        } else {
+          orderLessons.push({ lessonID: id, spaces: 1 });
+        }
+      });
+
+      const order = { name: this.name, phone: this.phone, lessons: orderLessons };
+
+      // 1. POST: save the order.
+      fetch(this.apiUrl + "/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order)
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Order was not saved");
+          return response.json();
+        })
+        .then(() => {
+          // 2. PUT: save the new number of spaces for each lesson in the order.
+          const updates = orderLessons.map(item => {
+            const lesson = this.lessons.find(l => l._id === item.lessonID);
+            return fetch(this.apiUrl + "/lessons/" + item.lessonID, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ spaces: lesson.spaces })
+            });
+          });
+          return Promise.all(updates);   // wait for every PUT to finish
+        })
+        .then(() => {
+          this.orderMessage = `Thank you, ${this.name}. Your order has been submitted.`;
+          this.cart = [];
+          this.name = "";
+          this.phone = "";
+        })
+        .catch(error => {
+          console.log(error);
+          this.orderMessage = "Sorry, the order could not be sent. Please try again.";
+        });
     }
   },
 
