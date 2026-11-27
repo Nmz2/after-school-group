@@ -8,6 +8,9 @@ const app = Vue.createApp({
       showCart: false,
       search: "",
       searchIds: null,     // ids of lessons the server says match; null = show all
+      teachers: [],             // filled from GET /teachers
+      selectedTeacher: "",      // "" = all teachers
+      teacherLessonIds: null,   // ids of the chosen teacher's lessons; null = show all
       sortBy: "subject",   // which field: subject, location, price or spaces
       sortOrder: "asc",    // "asc" or "desc"
       steps: [
@@ -55,6 +58,14 @@ const app = Vue.createApp({
       })
       .catch(error => {
         console.log("Could not load lessons:", error);
+      });
+    fetch(this.apiUrl + "/teachers")
+      .then(response => response.json())
+      .then(data => {
+        this.teachers = data;
+      })
+      .catch(error => {
+        console.log("Could not load teachers:", error);
       });
   },
 
@@ -140,6 +151,19 @@ const app = Vue.createApp({
           this.searchIds = data.map(l => l._id);
         })
         .catch(error => console.log("Search failed:", error));
+    },
+    selectedTeacher(teacherId) {
+      if (teacherId === "") {
+        this.teacherLessonIds = null;   // "All teachers": show everything
+        return;
+      }
+      fetch(this.apiUrl + "/teachers/" + teacherId + "/lessons")
+        .then(response => response.json())
+        .then(data => {
+          if (teacherId !== this.selectedTeacher) return;   // ignore an old answer
+          this.teacherLessonIds = data.map(l => l._id);
+        })
+        .catch(error => console.log("Could not load teacher lessons:", error));
     }
   },
   /* Zone 4: The COMPUTED values are here. These are made from data values. */

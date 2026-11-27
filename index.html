@@ -117,6 +117,14 @@
            <option value="desc">Descending</option>
           </select>
 
+          <label for="teacher">Teacher</label>
+          <select id="teacher" v-model="selectedTeacher">
+            <option value="">All teachers</option>
+            <option v-for="t in teachers" :key="t._id" :value="t._id">
+              {{ t.title }} {{ t.firstName }} {{ t.lastName }}
+            </option>
+          </select>
+
           <p class="result-count" aria-live="polite">{{ filteredLessons.length }} lessons shown</p>
           <p v-if="filteredLessons.length === 0" class="empty">No lessons found. Try another word.</p>
 
